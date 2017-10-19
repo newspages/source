@@ -1,1 +1,35 @@
+浅谈 mysql
+一.
+1.SQL 分类
+  sql语句主要可以划分为一下3个类别
+  1.1 DDL （data definition language）语句：数据定义语言，这些语句定义了不同的数据段、数据库、表、列、索引等数据库对象的定义。
+    常用的语句关键字主要包括 create 、drop 、alter等。
+  1.2 DML （data manipulation language）语句：数据库操纵语句，用于添加、删除、更新和查询数据记录，并检查数据完整性，常用的语句
+    关键字主要包括 insert、delete、uodate和select等。
+  1.3 DCL （data control language）语句：数据控制语句，用于控制不同数据段直接的许可和访问级别的语句。这些语句定义了数据库、表、
+    字段、用户的访问权限和安全级别。主要的语句关键字包括 grant、revoke等。
+    
+2.DDL 语句
+  2.1.mysql的表名是以目录的形式保存在磁盘上，所以表名的字符可以用任何目录名允许的字符。
 
+  2.2查看表的结构
+    show create table table_name \G;
+    "\G" 选项的含义是使得记录能够按照字段竖着排序，对于内容比较长的记录更容易显示。
+  
+  2.3 修改字段的排列顺序
+    修改表（alter table add/change/modify）中，都有哦一个可选项 first/after column_name,这个选项可以用来修改字段在表中的位置，默认
+    add 增加的新字段是加在表的最后位置，而change/modify 默认不会改变字段的位置。
+    
+    alter table emp add birth date after ename; //将生日字段添加到 ename 字段后边
+    
+  2.4 修改字段 age ，将它放在最前面
+    alter table emp modify age int(3) first; // modify age 表示 age 字段类型等信息都不变 first 是将 age 字段放置到最前面
+    
+  2.5 修改表名，语法如下：
+    alter table table_name rename [to] new_table_name;
+    
+  2.6 DML 语句
+    DML 操作是指对数据库中表记录的曹组，主要包括表记录的插入 （insert）、更新（update）、删除（delete）和查询（select），是开发人员
+    日常使用最频繁的操作。
+    
+    
