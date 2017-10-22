@@ -1,0 +1,22 @@
+常用时间日期函数
+mysql> select now(); // 返回当前2017-10-22 00:00:00 格式时间
+mysql> select unix_timestamp(now()); // 返回当前时间的时间戳
+mysql> select unix_timestamp('2017-10-22 00:00:00'); // 返回2017年10月22日零点的时间戳
+mysql> select unix_timestamp('2017-10-22'); // 返回2017年10月22日零点的时间戳
+mysql> select from_unxitime(unix_timestamp(now)); // 返回当前时间的格式化时间 2017-10-22 xx:xx:xx 等价于 select now();
+mysql> select from_unixtime(1508601600); // 返回时间戳的 1508601600 的格式化时间
+时间多种方式格式化函数：
+mysql> select date_format(now(),'%Y-%m-%d %H:%i:%s'); // 返回当前时间的完全格式化时间 如 2017-10-22 xx:xx:xx 等价于 select now();
+mysql> select date_format(now(),'%Y-%m-%d'); // 返回当前时间的部分格式化时间 如 2017-10-22 只格式化到天
+mysql> select date_format(now(),'%y-%m-%d'); // 返回当前时间的部分格式化时间 如 17-10-22 小写的 y 格式化年份为年份的后两位数
+
+1.group by 、with 和 having
+2.查询指定时间内的订单信息,如 查询前5天的订单信息
+  查询5天内的订单
+  step1:
+  确定今天零点的时间戳 , unix_timestamp(date_format(now(),'%Y-%m-%d'))
+  五天前零点的时间戳 = 今天零点时间戳 - 5 * (3600*24) = unix_timestamp(date_format(now(),'%Y-%m-%d')) - 5 * 86400
+  
+  select * from order where createtime > (unix_timestamp(date_format(now(),'%Y-%m-%d')) - 5* 86400)
+  and createtime < unix_timestamp(date_format(now(),'%Y-%m-%d'));
+  
