@@ -1,0 +1,33 @@
+使用phpstorm调试php程序
+步骤：
+1.打开php的xdebug扩展
+ 打开php.ini文件找到 【xdebug】 xdebug 块 去掉 zend_extension = 'php_xdebug.dll' 前面的 “;” 分号，并修改php_xdebug.dll扩展文件所在目录 如：
+ zend_extension = 'E:\xampp\php\ext\php_xdebug.dll' 
+ (注意：要查看ext文件夹下有没有扩展文件 php_xdebug.dll ， 如果没有则要去下载对应的版本的扩展文件)
+
+2. 配置phpstorm调试php应用程序
+ 1）首先检查phhpstorm的xdebug配置
+ 这里的debug port 要和php.ini里面的xdebug.remote_port相一致！默认是9000，如果9000端口被占用的话，可以改成其它端口。
+ File-->Settings...(Ctrl+Alt+S)-->(输入xdebug)回车即可看到右边的 xdebug 栏 只需要修改 port 为9000，其它默认即可。
+ 
+ 2）phpstorm配置
+ 客户端调试，打开phpstorm，进入 File > Settings > PHP > Servers,这里要填写服务器端的相关信息，name 填 localhost，host 填 localhost
+ port 填 80 ，debugger 选 XDebug
+ 
+ 进入File > Settings > PHP > Debug ,看到 XDebug 选项卡 ，port 填 9000 ,其它默认
+ 
+ 进入File > Settings > PHP > Debug > DBGp Proxy ,这里的 IDE key 填 phpStorm ， host 填 localhost ， port 填 80
+ 点击 OK 退出设置
+ 
+ 
+ 开始选择要调试的应用程序
+ 打开phpstorm 点击右上角的 倒三角形 > 点击 Edit configuration > 在弹出的窗口中点击 左上角的 绿色“+” 添加应用程序 > 选择 PHP WEB Application
+ > 在弹出的窗口中的右边 点击 Server：右边的 “...” > 在弹出的窗口中 Name：填写你要调试的应用网址 比如 www.ymshop.org  host:填写 www.ymshop.org
+ 点击 OK ,在 start URL 处 填写具体要调试的那个应用程序文件 ，比如要调试 test.php 这个文件，就在start URL 处 填写 test.php > 点击 ok 即可
+ 
+ 
+3.开始调试
+有两种方式：
+1）打好第一个断点，shift + F9 就可以了
+
+2）打好第一个断点，选中 phpstorm 右上角的 倒三角 （Edit configuration）旁边的 绿色 臭虫 按钮 即可
