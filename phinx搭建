@@ -1,0 +1,397 @@
+Phinx : 简单的PHP数据库迁移工具
+
+  2016/07/28  |  MySQL,PHP |  chenjie |  1 条评论 |  2526 views
+Phinx使你的php 应用进行数据迁移的过程变得异常轻松，在五分钟之内你就可以安装好Phinx 并进行数据迁移。Phinx允许开发者一种清晰、简洁的方式来修改和操作数据库，依托Phinx提供了一个强大的API，你无需手工编写SQL，而是使用PHP代码来创建代码迁移。然后开发者可以使用他们喜欢的SCM来进行代码迁移。这使得Phinx代码迁移可以移植于不同数据库系统之间。Phinx会对已经进行过的代码迁移进行跟踪，这样你就可以少担心数据库的状态,而是专注于开发更好的软件。
+
+特性
+
+使用php代码进行数据迁移
+部署模式下迁移
+五分钟之内使用
+不再担心数据库的状态
+可以整合任何应用
+特别适合开发，测试，线上数据库字段，数据同步（博主注）
+安装
+
+使用Composer 进行安装
+
+ 
+
+1.安装composer
+
+
+curl -s https://getcomposer.org/installer | php
+1
+curl -s https://getcomposer.org/installer | php
+2.把phinx当做一个依赖加入到你的composer.json
+
+
+{
+    "require": {
+        "robmorgan/phinx": "*"
+    }
+}
+1
+2
+3
+4
+5
+{
+    "require": {
+        "robmorgan/phinx": "*"
+    }
+}
+3.安装Phinx
+
+
+php composer.phar install
+1
+php composer.phar install
+4.执行Phinx
+
+
+php vendor/bin/phinx
+1
+php vendor/bin/phinx
+附：如果没有一路顺利那么恭喜你就安装好了，当然安装方法不止一种，其他方法可以参考官方文档，几种安装方法实践时我大概遇到一些问题，都涉及到php.ini的配置，一般安装中都会有错误提示，一个是需要关闭一些安全函数，还有一个是要将phar的readonly项目设置为off,然后需要重启php-fpm或者apache。
+
+然后就可以创建一个新的migration类
+
+
+php vendor/bin/phinx create MyNewMigration
+1
+php vendor/bin/phinx create MyNewMigration
+phinx 默认的配置文件在项目根目录下的phinx.yml，但是官方文档我们也可以使用phinx.php,只要删除phinx.yml，phinx.php就可以自动生效。这里我们采用phinx.php完成配置项
+
+我们可以将要迁移的数据库信息设置在单独的文件，然后在phinx.php里引入
+
+
+<?php 
+//  项目根目录/settings.php
+$config = array(
+    'DB_HOST' => 'localhost',
+    'DB_NAME' => 'phinx_test',
+    'DB_USER' => 'root',
+    'DB_PWD'  => 'devop'
+);
+$settings = $config;
+1
+2
+3
+4
+5
+6
+7
+8
+9
+<?php 
+//  项目根目录/settings.php
+$config = array(
+    'DB_HOST' => 'localhost',
+    'DB_NAME' => 'phinx_test',
+    'DB_USER' => 'root',
+    'DB_PWD'  => 'devop'
+);
+$settings = $config;
+
+<?php
+//  项目根目录/phinx.php
+require 'settings.php';
+return array(
+    "paths" => array(
+        "migrations" => "db/migrations",
+        "seeds" => "db/seeds"
+    ),
+    "environments" => array(
+        "default_migration_table" => "phinxlog",
+        "default_database" => "product",
+        "product" => array(
+            "adapter" => "mysql",
+            "host" => $settings["DB_HOST"],
+            "name" => $settings["DB_NAME"],
+            "user" => $settings["DB_USER"],
+            "pass" => $settings["DB_PWD"]
+        )
+    )
+);
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+<?php
+//  项目根目录/phinx.php
+require 'settings.php';
+return array(
+    "paths" => array(
+        "migrations" => "db/migrations",
+        "seeds" => "db/seeds"
+    ),
+    "environments" => array(
+        "default_migration_table" => "phinxlog",
+        "default_database" => "product",
+        "product" => array(
+            "adapter" => "mysql",
+            "host" => $settings["DB_HOST"],
+            "name" => $settings["DB_NAME"],
+            "user" => $settings["DB_USER"],
+            "pass" => $settings["DB_PWD"]
+        )
+    )
+);
+下面进入20160809174305_my_new_migration.php （这里数字是在上面创建命令时根据时间系统自动生成的）里书写代码，这里一共有3个方法可用，分别是change,up,down , 我们可以在up里写要执行的代码，down里写需要回滚的代码，这里特别说明大家不要用change方法，会影响up和down代码的执行
+
+下面介绍up方法里一些使用示例，down也依次类推，详情可以参考文档
+
+
+<?php
+
+//  项目根目录/db/migrations/20160809174305_my_new_migration.php
+use Phinx\Migration\AbstractMigration;
+
+class MyNewMigration extends AbstractMigration
+{
+    /**
+    * 更新数据库字段
+    */
+    public function up()
+    {
+        $users = $this->table('users');
+        $users->addColumn('id', 'string', array('limit' => 20))
+              ->update();
+    }
+
+}
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+<?php
+ 
+//  项目根目录/db/migrations/20160809174305_my_new_migration.php
+use Phinx\Migration\AbstractMigration;
+ 
+class MyNewMigration extends AbstractMigration
+{
+    /**
+    * 更新数据库字段
+    */
+    public function up()
+    {
+        $users = $this->table('users');
+        $users->addColumn('id', 'string', array('limit' => 20))
+              ->update();
+    }
+ 
+}
+ 
+
+
+<?php
+
+//  项目根目录/db/migrations/20160809174305_my_new_migration.php
+use Phinx\Migration\AbstractMigration;
+
+class MyNewMigration extends AbstractMigration
+{
+    /**
+    * 插入数据
+    */
+    public function up()
+    {
+        $data = array(
+          array(
+              'id'    => 11,
+          ),
+          array(
+              'id'    => 21,
+          )
+        );
+
+        $posts = $this->table('users');
+        $posts->insert($data)->save();
+    }
+}
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+<?php
+ 
+//  项目根目录/db/migrations/20160809174305_my_new_migration.php
+use Phinx\Migration\AbstractMigration;
+ 
+class MyNewMigration extends AbstractMigration
+{
+    /**
+    * 插入数据
+    */
+    public function up()
+    {
+        $data = array(
+          array(
+              'id'    => 11,
+          ),
+          array(
+              'id'    => 21,
+          )
+        );
+ 
+        $posts = $this->table('users');
+        $posts->insert($data)->save();
+    }
+}
+代码编写后执行命令如下
+
+
+php vendor/bin/phinx migrate  -e product
+1
+php vendor/bin/phinx migrate  -e product
+除了上面up方法示例的插入数据我们还可以用seed类来实现,首先命令执行创建seed类
+
+
+php vendor/bin/phinx seed:create UserSeeder
+1
+php vendor/bin/phinx seed:create UserSeeder
+
+<?php
+//  项目根目录/db/seeds/UserSeeder.php
+use Phinx\Seed\AbstractSeed;
+
+class UserSeeder extends AbstractSeed
+{
+    /**
+     * 插入数据
+     */
+    public function run()
+    {
+        $data = array(
+          array(
+              'id'    => 1,
+          ),
+          array(
+              'id'    => 2,
+          )
+        );
+
+        $posts = $this->table('users');
+        $posts->insert($data)->save();
+    }
+}
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+<?php
+//  项目根目录/db/seeds/UserSeeder.php
+use Phinx\Seed\AbstractSeed;
+ 
+class UserSeeder extends AbstractSeed
+{
+    /**
+     * 插入数据
+     */
+    public function run()
+    {
+        $data = array(
+          array(
+              'id'    => 1,
+          ),
+          array(
+              'id'    => 2,
+          )
+        );
+ 
+        $posts = $this->table('users');
+        $posts->insert($data)->save();
+    }
+}
+代码编写后执行命令如下
+
+
+php vendor/bin/phinx seed:run -e product
+1
+php vendor/bin/phinx seed:run -e product
+更多使用方法参见官方文档
+
+最后多说两句
+
+正如之前我在特性中提到的phinx特别适合在开发，测试，线上数据库同步字段信息，数据信息，生成和同步测试数据等，所以特别适合在团队开发流程中使用，尤其是对于一个新项目，只要在项目的开始就一直坚持使用phinx独立部署，那么每次变更数据库表信息团队成员都可以通过git或者svn的方式同步代码然后执行上面提到的执行命令来同步库表信息，以此避免传统开发时不同开发环境同步库表信息的繁琐和失误的情况。在phinx.php 有一个配置项”default_migration_table” => “phinxlog” 这里是记录变更记录的，这也是保障不会重复执行的一个措施，所以不用担心丢失或者重复操作执行命令。phinx的玩法多种多样，这里仅抛砖引玉。欢迎拍砖。
+
+参考
+
+github:        https://github.com/robmorgan/phinx
+
+官方文档：http://docs.phinx.org/en/latest
+
+常用命令：http://docs.phinx.org/en/latest/commands.html
