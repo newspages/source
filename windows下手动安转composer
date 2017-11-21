@@ -1,0 +1,113 @@
+windows下手动安装composer方法
+转载 2015年05月21日 16:22:07 标签：composer 3145
+composer是一个PHP的依赖管理工具，windos下安装经常被墙，现提供一个手动安装的方法，仅供参考
+
+一、安装前准备
+
+（1）Composer需要PHP 5.3.2+才能运行
+
+（2）php运行目录加入path变量。
+
+即确保任何地方打开cmd都能直接运行php -v
+
+（3）确保php 开启openssl扩展
+
+到php.ini里搜索OpenSSL，去掉前面的分号，保存重启服务器。
+
+
+二、安装配置composer
+
+（1）下载composer.phar
+
+https://getcomposer.org/composer.phar 下载到本地  （例如F:\tools\composer）
+
+cmd 运行 
+cd F:\tools\composer
+F:
+php composer.phar -v
+
+成功会显示如下
+
+
+（2）将composer.phar所在目录加入path环境变量
+
+
+（3）创建composer快捷命令
+
+cd F:\tools\composer
+F:
+echo @php "%~dp0composer.phar" %*>composer.bat
+
+则在F:\tools\composer 创建了一个composer.bat批处理文件，而F:\tools\composer已经加到环境变量中，以后再任意地方输入composer可同等于
+php composer.phar
+
+如图：
+
+
+
+（4）修改镜像
+
+日本镜像地址
+http://composer-proxy.jp/proxy/packagist
+可以全局设置也可以按需要设置
+为了避免安装包的时候都要执行两次查询，切记要添加禁用 packagist 的设置
+
+全局设置
+
+查看 composer 主目录：通过 composer config -l -g 命令可以列出 composer 的全局配置信息，在这些信息中查找[home] 配置项就是 composer 的主目录。
+进入 composer 的主目录，打开 config.json 文件（如果没有就自己创建一个），然后增加本镜像服务的配置信息，最终内容如下：
+
+{
+    "config": {
+
+
+    },
+    "repositories": [
+        {"type": "composer", "url": "http://composer-proxy.jp/proxy/packagist"},
+        {"packagist": false}
+    ]
+}
+
+
+按需设置
+
+如果只需要特定的项目指定特定的镜像，则不需修改全局设置，在需要的地方进行修改
+
+以 laravel 项目的 composer.json 配置文件为例，添加本镜像服务配置信息后如下所示（注意最后几行）：
+
+{
+    "name": "laravel/laravel",
+    "description": "The Laravel Framework.",
+    "keywords": ["framework", "laravel"],
+    "license": "MIT",
+    "type": "project",
+    "require": {
+        "laravel/framework": "5.0.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0",
+        "phpspec/phpspec": "~2.1"
+    },
+    "autoload": {
+        "classmap": [
+            "database"
+        ],
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/TestCase.php"
+        ]
+    },
+    "config": {
+        "preferred-install": "dist"
+    }
+
+
+    "repositories": [
+        {"type": "composer", "url": "http://pkg.phpcomposer.com/repo/packagist/"},
+        {"packagist": false}
+    ]
+}
